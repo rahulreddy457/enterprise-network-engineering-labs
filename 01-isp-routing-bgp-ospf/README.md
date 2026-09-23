@@ -28,11 +28,22 @@ This project simulates an ISP-style multi-router network using Cisco IOS in GNS3
 - Validate end-to-end communication.
 - Troubleshoot routing and connectivity failures.
 
-## Topology
+## Network Topology
 
-The lab contains multiple Cisco routers representing enterprise and ISP networks.
+The topology represents a multi-area OSPF network inside **AS 100**, with an external BGP connection to **AS 200**.
 
-A network topology diagram will be added here.
+![ISP-Style Multi-Router OSPF and BGP Network Topology](network-topology.png)
+
+### Topology Highlights
+
+- **AS 100** represents the internal enterprise/service-provider routing domain.
+- **AS 200** represents an external network reachable through BGP.
+- **R1** acts as the primary edge/core router connecting AS 100 to AS 200.
+- **OSPF Area 0** provides the backbone routing area.
+- Additional OSPF areas demonstrate multi-area routing.
+- Router loopback interfaces are used to represent stable network prefixes.
+- **PC1** represents an end-user LAN host used for end-to-end connectivity testing.
+- The `8.8.8.8/32` loopback on R8 represents an external destination used for reachability testing.
 
 ## Configuration
 
