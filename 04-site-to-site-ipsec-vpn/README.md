@@ -26,26 +26,16 @@ End-to-end testing confirmed successful encrypted communication between PC1 and 
 
 ## Network Topology
 
-```text
-HYD Site                                      BNG Site
+![Site-to-Site IPsec VPN Topology](network-topology.png)
 
-PC1                                           PC2
-10.10.10.10/24                                20.20.20.20/24
-Gateway: 10.10.10.1                           Gateway: 20.20.20.1
-      |                                             |
-      |                                             |
-HYD Fa0/0                                     BNG Fa0/0
-10.10.10.1                                    20.20.20.1
-      |                                             |
-      HYD ----------- IPsec VPN ----------- BNG
-203.0.110.10                               203.0.110.20
-```
+The topology represents two remote sites connected across a WAN and protected using a policy-based Site-to-Site IPsec VPN.
 
-Protected networks:
-
-```text
-10.10.10.0/24 <====== IPsec VPN ======> 20.20.20.0/24
-```
+- **HYD LAN:** `10.10.10.0/24`
+- **HYD VPN Endpoint:** `203.0.110.10`
+- **BNG LAN:** `20.20.20.0/24`
+- **BNG VPN Endpoint:** `203.0.110.20`
+- **Protected Traffic:** `10.10.10.0/24 ↔ 20.20.20.0/24`
+- **VPN Mode:** IPsec Tunnel Mode
 
 ## IP Addressing
 
