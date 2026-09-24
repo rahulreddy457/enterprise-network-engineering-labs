@@ -1,0 +1,15 @@
+hostname R8
+
+interface Loopback0
+ ip address 8.8.8.8 255.255.255.255
+!
+
+interface GigabitEthernet3/0
+ ip address 192.168.18.8 255.255.255.0
+ negotiation auto
+!
+
+router bgp 200
+ neighbor 192.168.18.1 remote-as 100
+ network 8.8.8.8 mask 255.255.255.255
+!
