@@ -14,6 +14,15 @@ interface Ethernet6/0
  duplex full
 !
 
+ip dhcp excluded-address 192.168.1.100
+!
+
+ip dhcp pool LAN
+ network 192.168.1.0 255.255.255.0
+ default-router 192.168.1.100
+ dns-server 8.8.8.8
+!
+
 router ospf 110
  router-id 5.5.5.5
  network 5.5.5.5 0.0.0.0 area 20
