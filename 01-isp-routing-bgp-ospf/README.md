@@ -137,6 +137,37 @@ The lab includes troubleshooting scenarios involving:
 - Cisco IOS CLI
 - GNS3 Network Simulation
 
+## End-to-End Validation
+
+The completed lab successfully provides connectivity from the internal client LAN through a multi-area OSPF network to an external BGP destination.
+
+### Verified Traffic Path
+
+```text
+PC1 (192.168.1.1)
+        |
+        | Default Gateway
+        v
+R5 (192.168.1.100)
+        |
+        | OSPF Area 20
+        v
+R4
+        |
+        v
+R2 (ABR)
+        |
+        | OSPF Area 0
+        v
+R1 (AS 100)
+        |
+        | eBGP
+        v
+R8 (AS 200)
+        |
+        v
+8.8.8.8/32
+
 ## Project Status
 
 🚧 Documentation and configurations are being added.
