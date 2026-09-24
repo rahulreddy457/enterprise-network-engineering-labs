@@ -25,3 +25,8 @@ router ospf 110
  network 192.168.12.0 0.0.0.255 area 0
  network 192.168.13.0 0.0.0.255 area 0
 !
+
+!
+router bgp 100
+ neighbor 192.168.18.8 remote-as 200
+!
