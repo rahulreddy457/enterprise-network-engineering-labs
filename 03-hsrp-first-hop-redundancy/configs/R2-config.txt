@@ -1,0 +1,33 @@
+hostname R2
+
+!
+! Routed Link to R1
+!
+interface GigabitEthernet1/0
+ ip address 192.168.12.2 255.255.255.0
+!
+
+!
+! Routed Link to R3
+!
+interface GigabitEthernet2/0
+ ip address 192.168.23.2 255.255.255.0
+!
+
+!
+! LAN Interface / HSRP
+!
+interface Ethernet6/0
+ ip address 192.168.2.101 255.255.255.0
+ standby 10 ip 192.168.2.250
+ standby 10 preempt
+!
+
+!
+! EIGRP Dynamic Routing
+!
+router eigrp 90
+ network 192.168.2.0
+ network 192.168.12.0
+ network 192.168.23.0
+!
