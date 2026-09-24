@@ -1,0 +1,160 @@
+SITE-TO-SITE IPSEC VPN VERIFICATION
+===================================
+
+HYD Site LAN: 10.10.10.0/24
+BNG Site LAN: 20.20.20.0/24
+
+HYD VPN Endpoint: 203.0.110.10
+BNG VPN Endpoint: 203.0.110.20
+
+
+1. END-TO-END CONNECTIVITY
+--------------------------
+
+PC1> ping 20.20.20.20
+
+20.20.20.20 icmp_seq=1 timeout
+84 bytes from 20.20.20.20 icmp_seq=2 ttl=62 time=106.545 ms
+84 bytes from 20.20.20.20 icmp_seq=3 ttl=62 time=60.778 ms
+84 bytes from 20.20.20.20 icmp_seq=4 ttl=62 time=60.143 ms
+84 bytes from 20.20.20.20 icmp_seq=5 ttl=62 time=60.234 ms
+
+Result:
+The initial packet timed out while the VPN security associations
+were being established. Subsequent packets successfully reached
+the remote site.
+
+
+2. IKE / ISAKMP VERIFICATION
+----------------------------
+
+HYD#show crypto isakmp sa
+
+IPv4 Crypto ISAKMP SA
+
+dst             src             state       conn-id status
+203.0.110.20    203.0.110.10    QM_IDLE        1001 ACTIVE
+
+Result:
+The IKE security association is established between HYD and BNG.
+The ISAKMP SA is ACTIVE.
+
+
+3. HYD IPSEC VERIFICATION
+-------------------------
+
+HYD#show crypto ipsec sa
+
+Interface: GigabitEthernet3/0
+Crypto map: CMAP
+
+Local protected network:
+10.10.10.0/24
+
+Remote protected network:
+20.20.20.0/24
+
+Current peer:
+203.0.110.20
+
+Packet counters:
+
+#pkts encaps: 4
+#pkts encrypt: 4
+#pkts digest: 4
+
+#pkts decaps: 4
+#pkts decrypt: 4
+#pkts verify: 4
+
+#send errors: 0
+#recv errors: 0
+
+Transform:
+esp-3des esp-md5-hmac
+
+Mode:
+Tunnel
+
+Inbound ESP SA:
+Status: ACTIVE(ACTIVE)
+
+Outbound ESP SA:
+Status: ACTIVE(ACTIVE)
+
+
+4. BNG IPSEC VERIFICATION
+-------------------------
+
+BNG#show crypto ipsec sa
+
+Interface: GigabitEthernet3/0
+Crypto map: CMAP
+
+Local protected network:
+20.20.20.0/24
+
+Remote protected network:
+10.10.10.0/24
+
+Current peer:
+203.0.110.10
+
+Packet counters:
+
+#pkts encaps: 4
+#pkts encrypt: 4
+#pkts digest: 4
+
+#pkts decaps: 4
+#pkts decrypt: 4
+#pkts verify: 4
+
+#send errors: 0
+#recv errors: 0
+
+Transform:
+esp-3des esp-md5-hmac
+
+Mode:
+Tunnel
+
+Inbound ESP SA:
+Status: ACTIVE(ACTIVE)
+
+Outbound ESP SA:
+Status: ACTIVE(ACTIVE)
+
+
+5. FINAL RESULT
+---------------
+
+PC1 10.10.10.10
+        |
+        v
+HYD 10.10.10.1
+        |
+        | Encrypt
+        v
+203.0.110.10
+        |
+        | ===== IPsec ESP Tunnel =====
+        |
+203.0.110.20
+        |
+        | Decrypt
+        v
+BNG 20.20.20.1
+        |
+        v
+PC2 20.20.20.20
+
+
+IKE SA:        ESTABLISHED
+IPsec SAs:     ACTIVE
+Encrypted:     4 packets
+Decrypted:     4 packets
+Send errors:   0
+Receive errors: 0
+
+Site-to-Site IPsec VPN successfully validated.
