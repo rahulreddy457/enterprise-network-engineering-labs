@@ -1,116 +1,184 @@
 ============================================================
-R1 ROUTING VERIFICATION
+END-TO-END CONNECTIVITY VERIFICATION
 ============================================================
 
-Device: R1
-OSPF Process ID: 110
-BGP AS: 100
-External BGP Neighbor: 192.168.18.8 (AS 200)
-
+Client:
+PC1 = 192.168.1.1/24
+Default Gateway = 192.168.1.100
+DHCP Server = 192.168.1.100
+DNS Server = 8.8.8.8
 
 ------------------------------------------------------------
-1. OSPF NEIGHBOR VERIFICATION
+1. DHCP VERIFICATION
 ------------------------------------------------------------
 
-R1#show ip ospf neighbor
+PC1 successfully obtained network configuration through DHCP:
 
-Neighbor ID     Pri   State           Dead Time   Address         Interface
-3.3.3.3           1   FULL/BDR        00:00:38    192.168.13.3    GigabitEthernet2/0
-2.2.2.2           1   FULL/BDR        00:00:39    192.168.12.2    GigabitEthernet1/0
+IP Address    : 192.168.1.1/24
+Default GW    : 192.168.1.100
+DNS           : 8.8.8.8
+DHCP Server   : 192.168.1.100
+
+Gateway connectivity test:
+
+PC1> ping 192.168.1.100
 
 Result:
-R1 successfully formed FULL OSPF adjacencies with R2 and R3.
+5/5 ICMP replies received.
+
+Status: PASS
 
 
 ------------------------------------------------------------
-2. BGP NEIGHBOR VERIFICATION
+2. BGP TO OSPF REDISTRIBUTION VERIFICATION
 ------------------------------------------------------------
 
-R1#show ip bgp summary
-
-BGP router identifier 1.1.1.1, local AS number 100
-
-Neighbor        V    AS    State/PfxRcd
-192.168.18.8    4    200   1
-
-Result:
-The eBGP session between R1 (AS 100) and R8 (AS 200) is established.
-R1 is receiving one BGP prefix from R8.
-
-
-------------------------------------------------------------
-3. BGP PREFIX VERIFICATION
-------------------------------------------------------------
-
-R1#show ip bgp
-
-     Network          Next Hop            Metric LocPrf Weight Path
- *>  8.8.8.8/32       192.168.18.8             0             0 200 i
-
-Result:
-R1 learned 8.8.8.8/32 through eBGP from AS 200.
-The route is valid (*) and selected as the best BGP path (>).
-
-
-------------------------------------------------------------
-4. ROUTING TABLE VERIFICATION
-------------------------------------------------------------
-
-R1#show ip route 8.8.8.8
+R5# show ip route 8.8.8.8
 
 Routing entry for 8.8.8.8/32
-  Known via "bgp 100", distance 20, metric 0
-  Tag 200, type external
-  Last update from 192.168.18.8
-
-Routing Descriptor Blocks:
-* 192.168.18.8, from 192.168.18.8
-    Route metric is 0
-    AS Hops 1
-    Route tag 200
+  Known via "ospf 110", distance 110, metric 1
+  Tag 200, type extern 2
+  Last update from 192.168.45.4 on GigabitEthernet1/0
 
 Result:
-The external BGP route is successfully installed in R1's routing table with
-next hop 192.168.18.8.
+
+The external BGP prefix 8.8.8.8/32 was successfully
+redistributed into OSPF by R1.
+
+R5 learned the prefix as an OSPF External Type 2 route.
+
+Status: PASS
 
 
 ------------------------------------------------------------
-5. END-TO-END REACHABILITY
+3. BGP RETURN-PATH VERIFICATION
 ------------------------------------------------------------
 
-R1#ping 8.8.8.8
+R8# show ip bgp
 
-Sending 5, 100-byte ICMP Echos to 8.8.8.8:
-!!!!!
-Success rate is 100 percent (5/5)
+Network          Next Hop          Path
+8.8.8.8/32       0.0.0.0           i
+192.168.1.0      192.168.18.1      100 i
+
+R8# show ip route 192.168.1.0
+
+Routing entry for 192.168.1.0/24
+  Known via "bgp 200", distance 20, metric 13
+  Tag 100, type external
+  Last update from 192.168.18.1
+  AS Hops 1
 
 Result:
-R1 successfully reaches the external 8.8.8.8/32 destination.
+
+R8 successfully learned the internal
+192.168.1.0/24 LAN through eBGP from R1.
+
+Status: PASS
 
 
 ------------------------------------------------------------
-6. PATH VERIFICATION
+4. END-TO-END PING VERIFICATION
 ------------------------------------------------------------
 
-R1#traceroute 8.8.8.8
+PC1> ping 8.8.8.8
 
-Tracing the route to 8.8.8.8
-
-1 192.168.18.8
+84 bytes from 8.8.8.8 icmp_seq=1
+84 bytes from 8.8.8.8 icmp_seq=2
+84 bytes from 8.8.8.8 icmp_seq=3
+84 bytes from 8.8.8.8 icmp_seq=4
+84 bytes from 8.8.8.8 icmp_seq=5
 
 Result:
-Traffic from R1 reaches 8.8.8.8 through R8 at 192.168.18.8.
+5/5 ICMP replies received.
+
+Status: PASS
+
+
+------------------------------------------------------------
+5. END-TO-END PATH VERIFICATION
+------------------------------------------------------------
+
+PC1> trace 8.8.8.8
+
+1  192.168.1.100
+2  192.168.45.4
+3  192.168.24.2
+4  192.168.12.1
+5  192.168.18.8
+
+Verified forwarding path:
+
+PC1
+ |
+R5 - 192.168.1.100
+ |
+R4 - 192.168.45.4
+ |
+R2 - 192.168.24.2
+ |
+R1 - 192.168.12.1
+ |
+eBGP
+ |
+R8 - 192.168.18.8
+ |
+8.8.8.8/32
+
+Status: PASS
 
 
 ============================================================
-VERIFICATION SUMMARY
+TROUBLESHOOTING CASE
 ============================================================
 
-[PASS] OSPF adjacency established with R2
-[PASS] OSPF adjacency established with R3
-[PASS] eBGP session established with R8
-[PASS] 8.8.8.8/32 learned through BGP
-[PASS] BGP route installed in routing table
-[PASS] Ping successful
-[PASS] Traceroute verified
+Initial Symptom:
+
+PC1 was unable to reach 8.8.8.8.
+
+Troubleshooting Process:
+
+1. Checked the R5 routing table for 8.8.8.8.
+   Result: Network not in table.
+
+2. Verified that R1 had learned 8.8.8.8/32 through eBGP
+   from R8 (AS 200).
+
+3. Configured BGP-to-OSPF redistribution on R1:
+
+   router ospf 110
+    redistribute bgp 100 subnets
+
+4. Verified that R5 learned 8.8.8.8/32 as an
+   OSPF External Type 2 route.
+
+5. PC1 still could not ping 8.8.8.8.
+
+6. Used traceroute from PC1 and confirmed traffic successfully
+   reached R1.
+
+7. Checked R8 for a return route to 192.168.1.0/24.
+   Result: Network not in table.
+
+8. Advertised the internal LAN from R1 into BGP:
+
+   router bgp 100
+    network 192.168.1.0
+
+9. Verified that R8 learned 192.168.1.0/24 through eBGP
+   with next hop 192.168.18.1.
+
+10. Re-tested connectivity from PC1 to 8.8.8.8.
+
+Final Result:
+
+PC1 successfully reached 8.8.8.8 with 5/5 ICMP replies.
+
+ROOT CAUSE:
+Missing route propagation in both directions.
+
+RESOLUTION:
+- Redistributed the external BGP prefix into OSPF.
+- Advertised the internal LAN prefix toward the external BGP peer.
+
+FINAL STATUS: PASS
 ============================================================
