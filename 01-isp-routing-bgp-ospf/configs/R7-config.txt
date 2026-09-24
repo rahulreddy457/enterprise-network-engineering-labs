@@ -1,0 +1,16 @@
+hostname R7
+
+interface Loopback0
+ ip address 7.7.7.7 255.255.255.255
+!
+
+interface GigabitEthernet2/0
+ ip address 192.168.67.7 255.255.255.0
+ negotiation auto
+!
+
+router ospf 110
+ router-id 7.7.7.7
+ network 7.7.7.7 0.0.0.0 area 18
+ network 192.168.67.0 0.0.0.255 area 18
+!
