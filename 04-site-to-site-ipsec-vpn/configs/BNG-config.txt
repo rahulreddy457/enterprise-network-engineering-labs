@@ -1,0 +1,63 @@
+hostname BNG
+
+!
+! IKE Phase 1
+!
+crypto isakmp policy 1
+ encr 3des
+ hash md5
+ authentication pre-share
+ group 2
+!
+
+!
+! Pre-Shared Key
+! Actual lab key intentionally redacted
+!
+crypto isakmp key <REDACTED_PRESHARED_KEY> address 203.0.110.10
+!
+
+!
+! IPsec Phase 2
+!
+crypto ipsec transform-set TS esp-3des esp-md5-hmac
+ mode tunnel
+!
+
+!
+! Crypto Map
+!
+crypto map CMAP 10 ipsec-isakmp
+ set peer 203.0.110.10
+ set transform-set TS
+ match address VPN-TRAFFIC
+!
+
+!
+! BNG LAN
+!
+interface FastEthernet0/0
+ ip address 20.20.20.1 255.255.255.0
+ duplex full
+!
+
+!
+! WAN / VPN Interface
+!
+interface GigabitEthernet3/0
+ ip address 203.0.110.20 255.255.255.0
+ crypto map CMAP
+!
+
+!
+! Route to Remote HYD LAN
+!
+ip route 10.10.10.0 255.255.255.0 203.0.110.10
+!
+
+!
+! Interesting Traffic
+!
+ip access-list extended VPN-TRAFFIC
+ permit ip 20.20.20.0 0.0.0.255 10.10.10.0 0.0.0.255
+!
