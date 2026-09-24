@@ -1,0 +1,38 @@
+hostname SW2
+
+!
+! Rapid Spanning Tree
+!
+spanning-tree mode rapid-pvst
+spanning-tree extend system-id
+
+!
+! Secondary Root Bridge for VLANs 1 and 10
+!
+spanning-tree vlan 1,10 priority 28672
+
+!
+! PC0 Access Port - VLAN 10
+!
+interface FastEthernet0/1
+ switchport mode access
+ switchport access vlan 10
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+!
+
+!
+! Trunk to SW1
+!
+interface FastEthernet1/1
+ switchport mode trunk
+ switchport trunk allowed vlan 1,10
+!
+
+!
+! Trunk to SW3
+!
+interface FastEthernet2/1
+ switchport mode trunk
+ switchport trunk allowed vlan 1,10
+!
