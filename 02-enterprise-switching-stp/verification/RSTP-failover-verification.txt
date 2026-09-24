@@ -1,0 +1,100 @@
+RSTP FAILOVER AND RECONVERGENCE VERIFICATION
+============================================
+
+Topology:
+SW1 = Primary Root Bridge for VLAN 10
+SW2 = Secondary Root Bridge for VLAN 10
+SW3 = Redundant downstream switch
+
+
+1. NORMAL RSTP STATE
+--------------------
+
+SW3#show spanning-tree vlan 10
+
+VLAN0010
+  Spanning tree enabled protocol rstp
+
+  Root ID    Priority    20481
+             Address     00D0.D3A9.6756
+             Cost        19
+             Port        2(FastEthernet1/1)
+
+Interface        Role Sts Cost      Prio.Nbr Type
+---------------- ---- --- --------- -------- ----------------
+Fa0/1            Altn BLK 19        128.1    P2p
+Fa2/1            Desg FWD 19        128.3    P2p
+Fa1/1            Root FWD 19        128.2    P2p
+
+Result:
+Fa1/1 is the preferred root path toward SW1.
+Fa0/1 is the redundant alternate path and is blocked by RSTP.
+
+
+2. PRIMARY ROOT PATH FAILURE
+----------------------------
+
+SW3 FastEthernet1/1 was administratively shut down.
+
+SW3#show spanning-tree vlan 10
+
+VLAN0010
+  Spanning tree enabled protocol rstp
+
+  Root ID    Priority    20481
+             Address     00D0.D3A9.6756
+             Cost        38
+             Port        1(FastEthernet0/1)
+
+Interface        Role Sts Cost      Prio.Nbr Type
+---------------- ---- --- --------- -------- ----------------
+Fa0/1            Root FWD 19        128.1    P2p
+Fa2/1            Desg FWD 19        128.3    P2p
+
+Result:
+RSTP automatically changed Fa0/1 from Alternate/Blocking to Root/Forwarding.
+
+The new path toward the root bridge traverses SW2.
+
+Root path cost changed from 19 to 38.
+
+
+3. PRIMARY LINK RESTORED
+------------------------
+
+SW3 FastEthernet1/1 was brought back online.
+
+SW3#show spanning-tree vlan 10
+
+VLAN0010
+  Spanning tree enabled protocol rstp
+
+  Root ID    Priority    20481
+             Address     00D0.D3A9.6756
+             Cost        19
+             Port        2(FastEthernet1/1)
+
+Interface        Role Sts Cost      Prio.Nbr Type
+---------------- ---- --- --------- -------- ----------------
+Fa0/1            Altn BLK 19        128.1    P2p
+Fa2/1            Desg FWD 19        128.3    P2p
+Fa1/1            Root FWD 19        128.2    P2p
+
+Result:
+RSTP reconverged to the preferred topology.
+Fa1/1 returned to Root/Forwarding.
+Fa0/1 returned to Alternate/Blocking.
+
+
+4. END-TO-END CONNECTIVITY
+--------------------------
+
+PC0> ping 192.168.10.20
+
+Packets: Sent = 4, Received = 4, Lost = 0 (0% loss)
+
+PC0: 192.168.10.10/24
+PC1: 192.168.10.20/24
+
+Result:
+End-to-end VLAN 10 connectivity successfully verified after RSTP reconvergence.
