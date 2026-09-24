@@ -39,3 +39,27 @@ Built a multi-router ISP-style topology integrating an internal multi-area OSPF 
 ## Repository Roadmap
 
 Additional hands-on labs will cover switching, redundancy, network security, troubleshooting, packet analysis, and network automation.
+
+### 02 — Enterprise Switching, VLANs & RSTP
+
+[View Lab →](02-enterprise-switching-stp/)
+
+Built a redundant Layer 2 enterprise switching topology using Cisco switches and Rapid-PVST+.
+
+**Implemented:**
+- VLAN 10 user segmentation
+- IEEE 802.1Q trunking
+- Rapid-PVST+ (RSTP)
+- Primary and secondary root bridge engineering
+- STP Root, Designated, and Alternate port analysis
+- PortFast and BPDU Guard on endpoint-facing ports
+- Redundant Layer 2 path failover
+- RSTP reconvergence testing
+- Native VLAN and BPDU Guard troubleshooting
+- End-to-end VLAN connectivity validation
+
+**Validated failover:**
+
+`SW3 → SW1` primary path failure caused the redundant `SW3 → SW2 → SW1` path to automatically transition to forwarding.
+
+**Result:** RSTP successfully prevented a Layer 2 loop, maintained redundant connectivity, and reconverged when the primary path was restored.
