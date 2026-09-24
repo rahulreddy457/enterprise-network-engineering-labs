@@ -63,3 +63,29 @@ Built a redundant Layer 2 enterprise switching topology using Cisco switches and
 `SW3 → SW1` primary path failure caused the redundant `SW3 → SW2 → SW1` path to automatically transition to forwarding.
 
 **Result:** RSTP successfully prevented a Layer 2 loop, maintained redundant connectivity, and reconverged when the primary path was restored.
+
+### 03 — HSRP First-Hop Redundancy with EIGRP
+
+[View Lab →](03-hsrp-first-hop-redundancy/)
+
+Implemented first-hop gateway redundancy using Cisco HSRP with EIGRP dynamic routing across a redundant three-router topology.
+
+**Implemented:**
+- HSRP Group 10
+- Virtual default gateway `192.168.2.250`
+- Active/Standby gateway redundancy
+- HSRP priority and preemption
+- EIGRP AS 90 dynamic routing
+- Redundant routed paths to a remote network
+- Gateway failure simulation
+- Automatic HSRP failover
+- End-to-end connectivity validation during failure
+- Active-router recovery and preemption testing
+
+**Validated failover:**
+
+`R1 Active → R1 failure → R2 Active → R1 recovery → R1 Active`
+
+During the simulated R1 gateway failure, PC1 continued reaching both the HSRP virtual gateway and the remote `8.8.8.8/32` destination through R2.
+
+**Result:** HSRP successfully maintained first-hop gateway availability during the simulated failure, and preemption restored R1 as the preferred Active router after recovery.
