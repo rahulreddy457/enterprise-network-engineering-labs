@@ -25,19 +25,12 @@ After R1 was restored, HSRP preemption allowed R1 to reclaim the Active role.
 
 ## Network Topology
 
-```text
-                       R3
-                Loopback0: 8.8.8.8
-                    /          \
-                   /            \
-          192.168.13.0       192.168.23.0
-                 /                \
-               R1------------------R2
-                 192.168.12.0
-                 \                /
-                  \              /
-                      Switch
-                     /      \
-                   PC1      PC2
+![HSRP First-Hop Redundancy and EIGRP Topology](network-topology.png)
 
-                 LAN: 192.168.2.0/24
+The topology provides redundant first-hop gateway connectivity for the `192.168.2.0/24` LAN.
+
+- **R1** — Preferred HSRP Active router, priority 150
+- **R2** — HSRP Standby router, default priority 100
+- **Virtual Gateway** — `192.168.2.250`
+- **R3** — Remote router with `8.8.8.8/32` loopback for connectivity testing
+- **EIGRP AS 90** — Provides dynamic routing between R1, R2, and R3
