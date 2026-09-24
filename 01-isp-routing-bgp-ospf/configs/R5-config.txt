@@ -1,0 +1,22 @@
+hostname R5
+
+interface Loopback0
+ ip address 5.5.5.5 255.255.255.255
+!
+
+interface GigabitEthernet1/0
+ ip address 192.168.45.5 255.255.255.0
+ negotiation auto
+!
+
+interface Ethernet6/0
+ ip address 192.168.1.100 255.255.255.0
+ duplex full
+!
+
+router ospf 110
+ router-id 5.5.5.5
+ network 5.5.5.5 0.0.0.0 area 20
+ network 192.168.45.0 0.0.0.255 area 20
+ network 192.168.1.0 0.0.0.255 area 20
+!
