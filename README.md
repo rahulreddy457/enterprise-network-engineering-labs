@@ -89,3 +89,34 @@ Implemented first-hop gateway redundancy using Cisco HSRP with EIGRP dynamic rou
 During the simulated R1 gateway failure, PC1 continued reaching both the HSRP virtual gateway and the remote `8.8.8.8/32` destination through R2.
 
 **Result:** HSRP successfully maintained first-hop gateway availability during the simulated failure, and preemption restored R1 as the preferred Active router after recovery.
+
+### 04 — Site-to-Site IPsec VPN
+
+[View Lab →](04-site-to-site-ipsec-vpn/)
+
+Implemented and validated a policy-based Site-to-Site IPsec VPN between two remote LANs using Cisco IOS.
+
+**Implemented:**
+- IKE / ISAKMP Phase 1
+- Pre-shared key authentication
+- IPsec Phase 2
+- ESP tunnel mode
+- Extended ACL for interesting traffic
+- Crypto map configuration
+- Static routing between remote sites
+- WAN-facing crypto map application
+- IKE and IPsec security association verification
+- Encrypted/decrypted packet counter validation
+- End-to-end inter-site connectivity testing
+
+**Protected Networks:**
+
+`10.10.10.0/24 ↔ 20.20.20.0/24`
+
+**Validated VPN:**
+
+`PC1 → HYD → IPsec ESP Tunnel → BNG → PC2`
+
+IKE reached an active `QM_IDLE` state, inbound and outbound ESP security associations became active, and IPsec counters confirmed encrypted and decrypted traffic with zero send/receive errors.
+
+**Result:** Successfully established and validated encrypted communication between the HYD and BNG site networks.
