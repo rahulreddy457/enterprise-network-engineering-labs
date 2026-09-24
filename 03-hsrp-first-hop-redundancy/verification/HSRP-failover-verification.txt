@@ -1,0 +1,126 @@
+HSRP FAILOVER AND RECOVERY VERIFICATION
+=======================================
+
+HSRP Group: 10
+Virtual Gateway: 192.168.2.250
+
+R1 LAN IP: 192.168.2.100
+R1 Priority: 150
+
+R2 LAN IP: 192.168.2.101
+R2 Priority: 100
+
+
+1. NORMAL HSRP STATE
+--------------------
+
+R1#show standby brief
+
+Interface   Grp  Pri P State   Active          Standby         Virtual IP
+Et6/0       10   150 P Active  local           192.168.2.101   192.168.2.250
+
+
+R2#show standby brief
+
+Interface   Grp  Pri P State   Active          Standby         Virtual IP
+Et6/0       10   100 P Standby 192.168.2.100   local           192.168.2.250
+
+
+Result:
+R1 is the Active HSRP router.
+R2 is the Standby HSRP router.
+Hosts use 192.168.2.250 as the virtual default gateway.
+
+
+2. FAILURE SIMULATION
+---------------------
+
+R1's LAN-facing interface was administratively shut down.
+
+R1(config)#interface Ethernet6/0
+R1(config-if)#shutdown
+
+
+R2 detected the HSRP failure:
+
+%HSRP-5-STATECHANGE: Ethernet6/0 Grp 10 state Standby -> Active
+
+
+R2#show standby brief
+
+Interface   Grp  Pri P State   Active   Standby   Virtual IP
+Et6/0       10   100 P Active  local    unknown   192.168.2.250
+
+
+Result:
+R2 automatically transitioned from Standby to Active while retaining
+the same HSRP virtual gateway address.
+
+
+3. CONNECTIVITY DURING FAILOVER
+-------------------------------
+
+While R1 Ethernet6/0 remained down and R2 was Active:
+
+PC1> ping 192.168.2.250
+
+84 bytes from 192.168.2.250 icmp_seq=1 ttl=255 time=16.023 ms
+84 bytes from 192.168.2.250 icmp_seq=2 ttl=255 time=15.238 ms
+84 bytes from 192.168.2.250 icmp_seq=3 ttl=255 time=15.337 ms
+84 bytes from 192.168.2.250 icmp_seq=4 ttl=255 time=15.233 ms
+84 bytes from 192.168.2.250 icmp_seq=5 ttl=255 time=15.373 ms
+
+
+PC1> ping 8.8.8.8
+
+84 bytes from 8.8.8.8 icmp_seq=1 ttl=254 time=45.400 ms
+84 bytes from 8.8.8.8 icmp_seq=2 ttl=254 time=45.241 ms
+84 bytes from 8.8.8.8 icmp_seq=3 ttl=254 time=51.535 ms
+84 bytes from 8.8.8.8 icmp_seq=4 ttl=254 time=45.366 ms
+84 bytes from 8.8.8.8 icmp_seq=5 ttl=254 time=45.322 ms
+
+
+Result:
+PC1 maintained connectivity to both the HSRP virtual gateway and
+the remote 8.8.8.8/32 loopback while R2 operated as the Active gateway.
+
+
+4. R1 RECOVERY AND PREEMPTION
+-----------------------------
+
+R1's LAN interface was restored:
+
+R1(config)#interface Ethernet6/0
+R1(config-if)#no shutdown
+
+
+R1#show standby brief
+
+Interface   Grp  Pri P State   Active          Standby         Virtual IP
+Et6/0       10   150 P Active  local           192.168.2.101   192.168.2.250
+
+
+Result:
+R1 reclaimed the Active role because it has the higher HSRP priority
+of 150 and HSRP preemption is enabled.
+
+R2 returned to the Standby role.
+
+
+5. FINAL RESULT
+---------------
+
+Normal State:
+R1 ACTIVE -> R2 STANDBY
+
+Failure:
+R1 DOWN -> R2 ACTIVE
+
+Connectivity:
+PC1 -> 192.168.2.250 -> SUCCESS
+PC1 -> 8.8.8.8 -> SUCCESS
+
+Recovery:
+R1 RESTORED -> PREEMPT -> R1 ACTIVE
+
+HSRP first-hop gateway redundancy successfully validated.
