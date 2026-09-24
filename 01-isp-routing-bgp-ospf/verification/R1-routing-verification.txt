@@ -1,0 +1,116 @@
+============================================================
+R1 ROUTING VERIFICATION
+============================================================
+
+Device: R1
+OSPF Process ID: 110
+BGP AS: 100
+External BGP Neighbor: 192.168.18.8 (AS 200)
+
+
+------------------------------------------------------------
+1. OSPF NEIGHBOR VERIFICATION
+------------------------------------------------------------
+
+R1#show ip ospf neighbor
+
+Neighbor ID     Pri   State           Dead Time   Address         Interface
+3.3.3.3           1   FULL/BDR        00:00:38    192.168.13.3    GigabitEthernet2/0
+2.2.2.2           1   FULL/BDR        00:00:39    192.168.12.2    GigabitEthernet1/0
+
+Result:
+R1 successfully formed FULL OSPF adjacencies with R2 and R3.
+
+
+------------------------------------------------------------
+2. BGP NEIGHBOR VERIFICATION
+------------------------------------------------------------
+
+R1#show ip bgp summary
+
+BGP router identifier 1.1.1.1, local AS number 100
+
+Neighbor        V    AS    State/PfxRcd
+192.168.18.8    4    200   1
+
+Result:
+The eBGP session between R1 (AS 100) and R8 (AS 200) is established.
+R1 is receiving one BGP prefix from R8.
+
+
+------------------------------------------------------------
+3. BGP PREFIX VERIFICATION
+------------------------------------------------------------
+
+R1#show ip bgp
+
+     Network          Next Hop            Metric LocPrf Weight Path
+ *>  8.8.8.8/32       192.168.18.8             0             0 200 i
+
+Result:
+R1 learned 8.8.8.8/32 through eBGP from AS 200.
+The route is valid (*) and selected as the best BGP path (>).
+
+
+------------------------------------------------------------
+4. ROUTING TABLE VERIFICATION
+------------------------------------------------------------
+
+R1#show ip route 8.8.8.8
+
+Routing entry for 8.8.8.8/32
+  Known via "bgp 100", distance 20, metric 0
+  Tag 200, type external
+  Last update from 192.168.18.8
+
+Routing Descriptor Blocks:
+* 192.168.18.8, from 192.168.18.8
+    Route metric is 0
+    AS Hops 1
+    Route tag 200
+
+Result:
+The external BGP route is successfully installed in R1's routing table with
+next hop 192.168.18.8.
+
+
+------------------------------------------------------------
+5. END-TO-END REACHABILITY
+------------------------------------------------------------
+
+R1#ping 8.8.8.8
+
+Sending 5, 100-byte ICMP Echos to 8.8.8.8:
+!!!!!
+Success rate is 100 percent (5/5)
+
+Result:
+R1 successfully reaches the external 8.8.8.8/32 destination.
+
+
+------------------------------------------------------------
+6. PATH VERIFICATION
+------------------------------------------------------------
+
+R1#traceroute 8.8.8.8
+
+Tracing the route to 8.8.8.8
+
+1 192.168.18.8
+
+Result:
+Traffic from R1 reaches 8.8.8.8 through R8 at 192.168.18.8.
+
+
+============================================================
+VERIFICATION SUMMARY
+============================================================
+
+[PASS] OSPF adjacency established with R2
+[PASS] OSPF adjacency established with R3
+[PASS] eBGP session established with R8
+[PASS] 8.8.8.8/32 learned through BGP
+[PASS] BGP route installed in routing table
+[PASS] Ping successful
+[PASS] Traceroute verified
+============================================================
