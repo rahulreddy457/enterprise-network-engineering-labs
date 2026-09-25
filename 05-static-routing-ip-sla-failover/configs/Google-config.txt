@@ -1,0 +1,25 @@
+hostname Google
+
+track 2 ip sla 2 reachability
+
+interface Loopback0
+ ip address 8.8.8.8 255.255.255.255
+
+interface GigabitEthernet1/0
+ ip address 192.168.12.1 255.255.255.0
+ negotiation auto
+
+interface GigabitEthernet2/0
+ ip address 192.168.13.1 255.255.255.0
+ negotiation auto
+
+ip route 192.168.1.0 255.255.255.0 192.168.12.2 track 2
+ip route 192.168.1.0 255.255.255.0 192.168.13.3 10
+ip route 192.168.24.0 255.255.255.0 192.168.12.2
+ip route 192.168.34.0 255.255.255.0 192.168.13.3
+
+ip sla 2
+ icmp-echo 192.168.24.4 source-interface GigabitEthernet1/0
+ frequency 5
+
+ip sla schedule 2 life forever start-time now
