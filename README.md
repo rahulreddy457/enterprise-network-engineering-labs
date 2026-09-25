@@ -120,3 +120,21 @@ Implemented and validated a policy-based Site-to-Site IPsec VPN between two remo
 IKE reached an active `QM_IDLE` state, inbound and outbound ESP security associations became active, and IPsec counters confirmed encrypted and decrypted traffic with zero send/receive errors.
 
 **Result:** Successfully established and validated encrypted communication between the HYD and BNG site networks.
+
+### Lab 05 — Dual-Path WAN Failover with IP SLA
+
+Implemented automatic primary/backup WAN failover using Cisco IP SLA, object tracking, and floating static routes.
+
+**Key technologies:** Static Routing, DHCP, IP SLA, Object Tracking, Administrative Distance, Floating Static Routes, Failover/Failback, Ping, Traceroute
+
+**Highlights:**
+- Configured Airtel as the preferred primary WAN path and Tata as the backup path.
+- Implemented IP SLA and object tracking to detect primary-path reachability failures.
+- Configured floating static routes with Administrative Distance 10 for backup routing.
+- Implemented bidirectional failover by tracking both forward and return paths.
+- Verified automatic failover to Tata during an Airtel outage.
+- Maintained PC1-to-8.8.8.8 connectivity during the tested outage.
+- Verified automatic failback to Airtel after primary-path recovery.
+- Troubleshot missing forward and return static routes using hop-by-hop testing and routing-table analysis.
+
+[View Lab 05](05-static-routing-ip-sla-failover/)
