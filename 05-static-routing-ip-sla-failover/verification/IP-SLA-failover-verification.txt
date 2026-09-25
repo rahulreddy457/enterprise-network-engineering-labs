@@ -1,0 +1,39 @@
+============================================================
+LAB 05 - IP SLA AND DUAL-PATH WAN FAILOVER VERIFICATION
+============================================================
+
+1. NORMAL STATE - R4 IP SLA
+---------------------------
+
+R4#show ip sla summary
+IPSLAs Latest Operation Summary
+Codes: * active, ^ inactive, ~ pending
+
+ID           Type        Destination       Stats       Return
+                                           (ms)        Code
+-----------------------------------------------------------------------
+*1           icmp-echo   8.8.8.8           RTT=60      OK
+
+
+R4#show track 1
+Track 1
+  IP SLA 1 reachability
+  Reachability is Up
+  Latest operation return code: OK
+  Latest RTT (millisecs) 60
+  Tracked by:
+    STATIC-IP-ROUTING 0
+
+
+2. NORMAL STATE - PRIMARY ROUTE ACTIVE
+---------------------------------------
+
+R4#show ip route 8.8.8.8
+Routing entry for 8.8.8.8/32
+  Known via "static", distance 1, metric 0
+  Routing Descriptor Blocks:
+  * 192.168.24.2
+      Route metric is 0, traffic share count is 1
+
+Primary next hop: 192.168.24.2 (Airtel)
+Administrative Distance: 1
