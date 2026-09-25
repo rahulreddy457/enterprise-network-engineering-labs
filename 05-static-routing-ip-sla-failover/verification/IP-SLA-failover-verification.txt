@@ -37,3 +37,63 @@ Routing entry for 8.8.8.8/32
 
 Primary next hop: 192.168.24.2 (Airtel)
 Administrative Distance: 1
+
+
+3. AIRTEL FAILURE - IP SLA DETECTS OUTAGE
+------------------------------------------
+
+The Airtel upstream interface was administratively shut down to simulate
+a primary-path failure.
+
+Google#show track 2
+Track 2
+  IP SLA 2 reachability
+  Reachability is Down
+    2 changes
+  Latest operation return code: Timeout
+  Tracked by:
+    STATIC-IP-ROUTING 0
+
+
+4. GOOGLE RETURN PATH FAILS OVER TO TATA
+-----------------------------------------
+
+Google#show ip route 192.168.1.0
+Routing entry for 192.168.1.0/24
+  Known via "static", distance 10, metric 0
+  Routing Descriptor Blocks:
+  * 192.168.13.3
+      Route metric is 0, traffic share count is 1
+
+Backup next hop: 192.168.13.3 (Tata)
+Administrative Distance: 10
+
+
+5. END-TO-END CONNECTIVITY DURING FAILURE
+------------------------------------------
+
+PC1> ping 8.8.8.8
+84 bytes from 8.8.8.8 icmp_seq=1 ttl=253 time=75.848 ms
+84 bytes from 8.8.8.8 icmp_seq=2 ttl=253 time=75.955 ms
+84 bytes from 8.8.8.8 icmp_seq=3 ttl=253 time=75.889 ms
+84 bytes from 8.8.8.8 icmp_seq=4 ttl=253 time=75.717 ms
+84 bytes from 8.8.8.8 icmp_seq=5 ttl=253 time=75.965 ms
+
+Result: 5/5 ICMP replies received while the primary Airtel path was unavailable.
+
+
+6. TRACEROUTE CONFIRMS TATA BACKUP PATH
+----------------------------------------
+
+PC1> trace 8.8.8.8
+trace to 8.8.8.8, 8 hops max, press Ctrl+C to stop
+ 1   192.168.1.4
+ 2   192.168.34.3
+ 3   *192.168.13.1 (ICMP type:3, code:3, Destination port unreachable)
+
+Observed backup path:
+
+PC1 -> R4 -> Tata -> Google -> 8.8.8.8
+
+Hop 2 changed from Airtel (192.168.24.2) to Tata (192.168.34.3),
+confirming traffic was forwarded through the backup path.
